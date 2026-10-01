@@ -3,693 +3,575 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎬 DOCUMENTARY JEOPARDY - Name That Documentary Term!</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <title>Documentary Jeopardy!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Font: Fredoka -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        fredoka: ['Fredoka', 'sans-serif'],
-                        comic: ['Comic Neue', 'cursive']
-                    },
-                    colors: {
-                        creamBg: '#fef6e4',
-                        detectiveBrown: '#2b2d42',
-                        cardYellow: '#fff9e6',
-                        accentPink: '#ff70a6',
-                        accentBlue: '#00b4d8',
-                        accentYellow: '#ffd166',
-                        accentGreen: '#06d6a0',
-                        accentPurple: '#9b5de5',
-                        accentOrange: '#f3722c'
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body {
             font-family: 'Fredoka', sans-serif;
-            background-color: #fef6e4;
-            background-image: radial-gradient(#d1cfc5 1.5px, transparent 1.5px);
-            background-size: 24px 24px;
-            color: #2b2d42;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
+            background-color: #FFF9E6;
         }
-
-        .hand-drawn-card {
-            background: #ffffff;
-            border: 4px solid #2b2d42;
-            border-radius: 20px 255px 20px 255px/255px 20px 255px 20px;
-            box-shadow: 6px 6px 0px rgba(43, 45, 66, 0.9);
-        }
-
-        .btn-cartoon {
-            border: 3px solid #2b2d42;
-            border-radius: 18px;
-            box-shadow: 4px 4px 0px #2b2d42;
-            font-weight: 700;
+        /* Neo-brutalism hard offset drop shadows & borders */
+        .neo-box {
+            border: 3px solid #000000;
+            box-shadow: 4px 4px 0px #000000;
             transition: all 0.1s ease;
-            cursor: pointer;
         }
-
-        .btn-cartoon:active {
+        .neo-box-lg {
+            border: 4px solid #000000;
+            box-shadow: 6px 6px 0px #000000;
+        }
+        .neo-btn {
+            border: 3px solid #000000;
+            box-shadow: 4px 4px 0px #000000;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+        }
+        .neo-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #000000;
+        }
+        .neo-btn:active {
             transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0px #2b2d42;
+            box-shadow: 2px 2px 0px #000000;
         }
-
-        .jeopardy-tile {
-            background: #00b4d8;
-            color: #ffffff;
-            border: 3px solid #2b2d42;
-            border-radius: 12px;
-            box-shadow: 3px 3px 0px #2b2d42;
-            font-family: 'Fredoka', sans-serif;
-            font-weight: 700;
-            transition: all 0.15s ease;
-            cursor: pointer;
+        /* Custom scrollbar for clean viewport fit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-
-        .jeopardy-tile:hover:not(.played) {
-            transform: scale(1.03);
-            background: #0096c7;
-            box-shadow: 4px 4px 0px #2b2d42;
+        ::-webkit-scrollbar-track {
+            background: #FFF9E6;
+            border-left: 3px solid #000;
         }
-
-        .jeopardy-tile.played {
-            background: #e2e8f0;
-            color: #94a3b8;
-            border-color: #cbd5e0;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        @keyframes float-slow {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(2deg); }
-        }
-
-        .animate-float {
-            animation: float-slow 3s infinite ease-in-out;
-        }
-
-        @keyframes bounce-bouncy {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
-        }
-
-        .animate-bouncy {
-            animation: bounce-bouncy 1.5s infinite ease-in-out;
+        ::-webkit-scrollbar-thumb {
+            background: #FF5757;
+            border: 2px solid #000;
         }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden flex flex-col justify-between p-2 sm:p-3 selection:bg-pink-200 selection:text-detectiveBrown">
+<body class="h-screen w-screen overflow-hidden flex flex-col bg-[#FFF9E6] text-black select-none">
 
-    <!-- 1. COVER / LOADING PAGE -->
-    <div id="view-cover" class="fixed inset-0 bg-gradient-to-br from-amber-100 via-pink-100 to-cyan-100 z-50 flex items-center justify-center p-3">
-        <div class="absolute top-8 left-12 w-6 h-6 bg-pink-400 rounded-full animate-float opacity-75"></div>
-        <div class="absolute top-16 right-16 w-8 h-8 bg-yellow-400 rotate-45 animate-float opacity-75" style="animation-delay: 0.7s;"></div>
-        <div class="absolute bottom-12 left-16 w-7 h-7 bg-purple-400 rounded-full animate-float opacity-75" style="animation-delay: 1.2s;"></div>
-        <div class="absolute bottom-20 right-20 w-6 h-6 bg-emerald-400 rotate-12 animate-float opacity-50" style="animation-delay: 0.4s;"></div>
-
-        <div class="hand-drawn-card bg-white max-w-3xl w-full p-6 sm:p-8 text-center space-y-4 relative shadow-2xl">
-            <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-yellow-300 text-detectiveBrown px-6 py-2 rounded-full border-3 border-detectiveBrown font-bold text-sm shadow-[3px_3px_0px_#2b2d42] animate-bouncy">
-                ✨ GRADE 10 ENGLISH REVIEWER ✨
+    <!-- ================= 1. COVER & LOBBY SCREEN (MAXIMIZED) ================= -->
+    <div id="screen-lobby" class="absolute inset-0 z-50 bg-[#FFF9E6] flex flex-col items-center justify-center p-6 transition-opacity duration-300">
+        <div class="w-full h-full max-w-5xl max-h-[90vh] bg-white neo-box-lg p-8 md:p-12 rounded-3xl flex flex-col items-center justify-center text-center relative bg-[radial-gradient(#FFE600_2px,transparent_2px)] [background-size:28px_28px] shadow-[8px_8px_0px_#000]">
+            <!-- Decorative Badge -->
+            <div class="absolute -top-6 -right-6 bg-[#FF5757] text-white px-8 py-3 neo-box rotate-12 font-bold text-lg tracking-wider">
+                CLASSROOM EDITION!
             </div>
-            
-            <div class="flex flex-wrap justify-center items-center gap-4 pt-2">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-pink-100 rounded-2xl border-3 border-detectiveBrown flex flex-col items-center justify-center text-detectiveBrown shadow-[4px_4px_0px_#2b2d42] animate-float">
-                    <svg viewBox="0 0 100 100" class="w-12 h-12">
-                        <rect x="15" y="35" width="70" height="50" rx="6" fill="#ff70a6" stroke="#2b2d42" stroke-width="4"/>
-                        <path d="M15,35 L30,15 L85,15 L70,35 Z" fill="#2b2d42"/>
-                        <line x1="38" y1="15" x2="25" y2="35" stroke="#fff" stroke-width="4"/>
-                        <line x1="62" y1="15" x2="50" y2="35" stroke="#fff" stroke-width="4"/>
-                        <circle cx="38" cy="58" r="4" fill="#2b2d42"/>
-                        <circle cx="62" cy="58" r="4" fill="#2b2d42"/>
-                    </svg>
-                </div>
 
-                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-cyan-100 rounded-2xl border-3 border-detectiveBrown flex flex-col items-center justify-center text-detectiveBrown shadow-[4px_4px_0px_#2b2d42] animate-float" style="animation-delay: 0.3s;">
-                    <svg viewBox="0 0 100 100" class="w-12 h-12">
-                        <rect x="12" y="30" width="76" height="52" rx="10" fill="#00b4d8" stroke="#2b2d42" stroke-width="4"/>
-                        <path d="M35,30 L42,18 L58,18 L65,30 Z" fill="#2b2d42"/>
-                        <circle cx="50" cy="56" r="16" fill="#fff" stroke="#2b2d42" stroke-width="4"/>
-                        <circle cx="50" cy="56" r="7" fill="#2b2d42"/>
-                    </svg>
-                </div>
+            <div class="w-24 h-24 bg-[#5783FF] neo-box rounded-3xl flex items-center justify-center text-white text-5xl mb-6 rotate-[-5deg] shadow-[6px_6px_0px_#000]">
+                <i class="fa-solid fa-clapperboard"></i>
+            </div>
 
-                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-yellow-100 rounded-2xl border-3 border-detectiveBrown flex flex-col items-center justify-center text-detectiveBrown shadow-[4px_4px_0px_#2b2d42] animate-float" style="animation-delay: 0.6s;">
-                    <svg viewBox="0 0 100 100" class="w-12 h-12 animate-spin" style="animation-duration: 8s;">
-                        <circle cx="50" cy="50" r="32" fill="#ffd166" stroke="#2b2d42" stroke-width="4"/>
-                        <circle cx="50" cy="50" r="10" fill="#fff" stroke="#2b2d42" stroke-width="3"/>
-                        <circle cx="50" cy="28" r="5" fill="#2b2d42"/>
-                        <circle cx="50" cy="72" r="5" fill="#2b2d42"/>
-                    </svg>
-                </div>
+            <span class="bg-[#FFE600] px-6 py-1.5 neo-box rounded-full text-sm md:text-base font-bold uppercase tracking-widest mb-4">
+                🎬 Documentary Jeopardy
+            </span>
+            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
+                “Name That Documentary Term!”
+            </h1>
+            <p class="text-gray-700 font-medium text-lg md:text-xl mb-10 max-w-2xl leading-relaxed">
+                Test your knowledge on documentary purposes, features, main ideas, and target audiences in this vibrant interactive classroom game!
+            </p>
 
-                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-100 rounded-2xl border-3 border-detectiveBrown flex flex-col items-center justify-center text-detectiveBrown shadow-[4px_4px_0px_#2b2d42] animate-float" style="animation-delay: 0.9s;">
-                    <svg viewBox="0 0 100 100" class="w-12 h-12">
-                        <rect x="40" y="20" width="20" height="32" rx="10" fill="#06d6a0" stroke="#2b2d42" stroke-width="4"/>
-                        <path d="M30,40 Q30,65 50,65 Q70,65 70,40" fill="none" stroke="#2b2d42" stroke-width="4"/>
-                        <line x1="50" y1="65" x2="50" y2="82" stroke="#2b2d42" stroke-width="4"/>
-                    </svg>
+            <!-- Loading bar simulation container -->
+            <div id="loading-container" class="w-full max-w-lg mb-8">
+                <div class="flex justify-between text-sm md:text-base font-bold mb-2">
+                    <span id="loading-text">Loading Game Assets...</span>
+                    <span id="loading-pct">0%</span>
+                </div>
+                <div class="w-full h-7 bg-white neo-box rounded-full overflow-hidden p-1 shadow-[4px_4px_0px_#000]">
+                    <div id="loading-bar" class="h-full bg-[#38E54D] rounded-full w-0 transition-all duration-100"></div>
                 </div>
             </div>
 
-            <div class="space-y-1">
-                <h1 class="text-3xl sm:text-4xl font-bold text-detectiveBrown tracking-wide">🎬 DOCUMENTARY JEOPARDY</h1>
-                <p class="text-lg sm:text-xl font-bold text-cyan-700">“Name That Documentary Term!”</p>
-                <p class="font-comic text-gray-700 text-sm sm:text-base max-w-lg mx-auto">
-                    Master documentary concepts, terminology, structure, and features through an interactive game experience!
-                </p>
-            </div>
-
-            <div class="pt-2 flex justify-center">
-                <button onclick="goToInstructions()" class="btn-cartoon bg-gradient-to-r from-pink-500 to-purple-600 text-white px-10 py-3.5 text-xl flex items-center justify-center gap-3 hover:opacity-95 shadow-[4px_4px_0px_#2b2d42]">
-                    <i class="fa-solid fa-play"></i> START GAME!
-                </button>
-            </div>
+            <!-- Start Button (Hidden until loaded) -->
+            <button id="start-btn" onclick="startGame()" class="hidden w-full max-w-md bg-[#FFE600] hover:bg-[#ffed4a] text-black font-extrabold text-xl py-4 rounded-2xl neo-btn flex items-center justify-center gap-3 cursor-pointer shadow-[6px_6px_0px_#000]">
+                <i class="fa-solid fa-play"></i> START GAME!
+            </button>
         </div>
     </div>
 
-    <!-- 2. MAXIMIZED MECHANICS / INSTRUCTIONS SCREEN -->
-    <div id="view-instructions" class="fixed inset-0 bg-gradient-to-br from-cyan-100 via-amber-100 to-pink-100 z-40 flex items-center justify-center p-3 sm:p-6 hidden">
-        <div class="hand-drawn-card bg-white max-w-4xl w-full p-6 sm:p-8 space-y-5 shadow-2xl overflow-y-auto max-h-[92vh]">
-            <div class="text-center space-y-1 pb-3 border-b-3 border-detectiveBrown">
-                <span class="bg-amber-300 text-detectiveBrown text-xs sm:text-sm font-bold px-4 py-1 rounded-full border-2 border-detectiveBrown uppercase tracking-wider">📜 Game Mechanics & Instructions</span>
-                <h2 class="text-2xl sm:text-3xl font-bold text-detectiveBrown">How to Play Documentary Jeopardy</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-comic text-base sm:text-lg text-detectiveBrown">
-                <div class="flex items-start gap-3 bg-amber-50 p-4 rounded-xl border-2 border-detectiveBrown">
-                    <div class="bg-yellow-300 w-9 h-9 rounded-full border-2 border-detectiveBrown flex items-center justify-center font-bold text-base shrink-0 shadow-[2px_2px_0px_#2b2d42]">1</div>
-                    <div>
-                        <strong class="font-fredoka block text-detectiveBrown mb-1">Pick a Category & Points</strong>
-                        <p class="text-sm text-gray-700">Choose any point tile from 100 to 500 across the 6 major documentary categories.</p>
-                    </div>
-                </div>
-
-                <div class="flex items-start gap-3 bg-cyan-50 p-4 rounded-xl border-2 border-detectiveBrown">
-                    <div class="bg-cyan-300 w-9 h-9 rounded-full border-2 border-detectiveBrown flex items-center justify-center font-bold text-base shrink-0 shadow-[2px_2px_0px_#2b2d42]">2</div>
-                    <div>
-                        <strong class="font-fredoka block text-detectiveBrown mb-1">Read & Discuss the Clue</strong>
-                        <p class="text-sm text-gray-700">Read the clue card aloud and discuss with your classmates to figure out the correct term.</p>
-                    </div>
-                </div>
-
-                <div class="flex items-start gap-3 bg-pink-50 p-4 rounded-xl border-2 border-detectiveBrown">
-                    <div class="bg-pink-300 w-9 h-9 rounded-full border-2 border-detectiveBrown flex items-center justify-center font-bold text-base shrink-0 shadow-[2px_2px_0px_#2b2d42]">3</div>
-                    <div>
-                        <strong class="font-fredoka block text-detectiveBrown mb-1">Reveal & Got It!</strong>
-                        <p class="text-sm text-gray-700">Click <span class="bg-yellow-200 px-1.5 py-0.5 rounded font-bold">Reveal Answer</span> to check your answer, then click <span class="bg-emerald-200 px-1.5 py-0.5 rounded font-bold">Got It!</span> to return to the board and mark the tile as played.</p>
-                    </div>
-                </div>
-
-                <div class="flex items-start gap-3 bg-purple-50 p-4 rounded-xl border-2 border-detectiveBrown">
-                    <div class="bg-purple-300 w-9 h-9 rounded-full border-2 border-detectiveBrown flex items-center justify-center font-bold text-base shrink-0 shadow-[2px_2px_0px_#2b2d42]">4</div>
-                    <div>
-                        <strong class="font-fredoka block text-detectiveBrown mb-1">Final Jeopardy Challenge</strong>
-                        <p class="text-sm text-gray-700">After clearing the board (or anytime), tackle the ⭐ Final Jeopardy ultimate review question!</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pt-2 flex justify-center">
-                <button onclick="startGameBoard()" class="btn-cartoon bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-12 py-3.5 text-lg flex items-center gap-3 hover:opacity-95 shadow-[4px_4px_0px_#2b2d42]">
-                    <i class="fa-solid fa-rocket"></i> Continue to Game Board!
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- HEADER BAR -->
-    <header class="w-full max-w-7xl mx-auto bg-white border-3 border-detectiveBrown rounded-xl py-2 px-4 shadow-[3px_3px_0px_#2b2d42] z-30 flex justify-between items-center shrink-0">
-        <div class="flex items-center gap-3 cursor-pointer" onclick="showCover()">
-            <div class="bg-yellow-300 w-9 h-9 sm:w-10 sm:h-10 rounded-full border-3 border-detectiveBrown flex items-center justify-center text-lg shadow-[2px_2px_0px_#2b2d42]">
-                <i class="fa-solid fa-clapperboard text-detectiveBrown"></i>
+    <!-- ================= 2. TOP BANNER / HEADER ================= -->
+    <header class="h-16 shrink-0 bg-white border-b-4 border-black px-6 flex items-center justify-between z-10 shadow-[0_4px_0_0_#000]">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-[#FF5757] neo-box rounded-xl flex items-center justify-center text-white text-xl">
+                <i class="fa-solid fa-film"></i>
             </div>
             <div>
-                <h1 class="text-base sm:text-xl font-bold tracking-wide text-detectiveBrown leading-tight">DOCUMENTARY JEOPARDY</h1>
-                <p class="text-xs font-comic font-bold text-amber-800">“Name That Documentary Term!”</p>
+                <h2 class="font-extrabold text-lg leading-tight">Documentary Jeopardy</h2>
+                <p class="text-xs font-bold text-gray-600">Grade 10 Instructional Edition</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-2">
-            <button onclick="toggleAudio()" id="audio-toggle-btn" class="btn-cartoon bg-amber-100 px-3.5 py-1.5 text-xs sm:text-sm flex items-center gap-2 hover:bg-amber-200 text-detectiveBrown">
-                <i class="fa-solid fa-volume-high" id="audio-icon"></i> Sound & BGM
+        <div class="flex items-center gap-3">
+            <!-- Audio Toggle -->
+            <button onclick="toggleAudio()" id="audio-toggle-btn" class="w-10 h-10 bg-[#FFE600] neo-box rounded-xl flex items-center justify-center text-black font-bold hover:bg-[#ffed4a] cursor-pointer" title="Toggle Sound Effects">
+                <i id="audio-icon" class="fa-solid fa-volume-high"></i>
+            </button>
+            <!-- Instructions Modal Trigger -->
+            <button onclick="openInstructions()" class="bg-[#5783FF] text-white px-4 py-2 neo-box rounded-xl font-bold flex items-center gap-2 hover:bg-[#4570ff] cursor-pointer">
+                <i class="fa-solid fa-circle-question"></i> How to Play
+            </button>
+            <!-- Final Jeopardy Button -->
+            <button onclick="openFinalJeopardy()" class="bg-[#FF5757] text-white px-4 py-2 neo-box rounded-xl font-bold flex items-center gap-2 hover:bg-[#e04343] cursor-pointer">
+                <i class="fa-solid fa-star"></i> Final Jeopardy
             </button>
         </div>
     </header>
 
-    <!-- 3. OPTIMIZED JEOPARDY BOARD (NO SCROLL REQUIRED) -->
-    <main class="flex-grow max-w-7xl w-full mx-auto my-1.5 flex flex-col justify-center items-center overflow-hidden">
-        <div id="view-board" class="w-full space-y-2">
-            <div class="w-full">
-                <!-- Headers (6 Columns) -->
-                <div class="grid grid-cols-6 gap-1.5 sm:gap-2.5 w-full" id="jeopardy-grid-headers">
-                    <!-- Injected via JS -->
-                </div>
-                <!-- Tiles Grid (6 cols x 5 rows) -->
-                <div class="grid grid-cols-6 gap-1.5 sm:gap-2.5 mt-1.5 sm:mt-2.5 w-full" id="jeopardy-grid-tiles">
-                    <!-- Injected via JS -->
-                </div>
-            </div>
-
-            <!-- Final Jeopardy Button -->
-            <div class="text-center pt-0.5">
-                <button onclick="openFinalJeopardy()" class="btn-cartoon bg-purple-600 text-white px-7 py-2.5 sm:py-3 text-sm sm:text-base flex items-center gap-3 mx-auto shadow-[4px_4px_0px_#2b2d42] hover:bg-purple-700 animate-bouncy">
-                    <i class="fa-solid fa-star text-yellow-300"></i> ⭐ FINAL JEOPARDY ⭐ <i class="fa-solid fa-star text-yellow-300"></i>
-                </button>
-            </div>
+    <!-- ================= 3. MAIN DYNAMIC BOARD ================= -->
+    <main class="flex-1 p-4 overflow-hidden flex flex-col">
+        <!-- Jeopardy Categories Grid (4 columns, strictly viewport-fitted) -->
+        <div id="board-grid" class="grid grid-cols-4 gap-3 h-full w-full">
+            <!-- Dynamically populated via JavaScript -->
         </div>
     </main>
 
-    <!-- 4. CLUE MODAL -->
-    <div id="clue-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-        <div class="hand-drawn-card bg-white max-w-xl w-full p-6 sm:p-8 space-y-4 relative shadow-2xl">
-            <div class="flex justify-between items-center pb-3 border-b-3 border-detectiveBrown">
-                <span id="modal-category-title" class="bg-cyan-600 text-white text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full border-2 border-detectiveBrown">Category</span>
-                <span id="modal-points-title" class="text-xl sm:text-2xl font-bold text-amber-600">500 pts</span>
-                <button onclick="closeModalDirect()" class="w-8 h-8 rounded-full bg-red-100 border-2 border-detectiveBrown flex items-center justify-center font-bold text-sm hover:bg-red-200 cursor-pointer text-detectiveBrown">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+    <!-- ================= 4. CLUE / QUESTION MODAL ================= -->
+    <div id="clue-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+        <div class="bg-white max-w-2xl w-full neo-box-lg rounded-3xl p-8 flex flex-col items-center text-center relative animate-in fade-in zoom-in-95 duration-150">
+            <!-- Close X -->
+            <button onclick="closeClueModal()" class="absolute top-4 right-4 w-10 h-10 bg-[#FF5757] text-white neo-box rounded-xl flex items-center justify-center font-bold text-lg hover:bg-[#e04343] cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Category & Value Badge -->
+            <div id="modal-badge" class="bg-[#FFE600] px-4 py-1.5 neo-box rounded-full font-extrabold text-sm mb-6">
+                CATEGORY • $100
             </div>
 
-            <div class="py-2 text-center space-y-2">
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest"><i class="fa-solid fa-magnifying-glass"></i> CLUE</h3>
-                <p id="modal-clue-text" class="text-lg sm:text-2xl font-bold text-detectiveBrown leading-relaxed">
+            <!-- Clue Prompt -->
+            <div class="w-full bg-[#FFF9E6] neo-box rounded-2xl p-6 mb-6">
+                <h3 id="modal-clue-text" class="text-2xl md:text-3xl font-bold text-black leading-snug">
                     Clue text goes here...
-                </p>
+                </h3>
             </div>
 
-            <div id="modal-answer-section" class="hidden p-3.5 rounded-xl bg-emerald-50 border-3 border-detectiveBrown space-y-1 text-center">
-                <span class="text-xs font-bold text-emerald-800 uppercase">✅ CORRECT ANSWER</span>
-                <p id="modal-answer-text" class="text-xl sm:text-2xl font-bold text-emerald-700">Answer here</p>
-            </div>
-
-            <div class="flex justify-center gap-4 pt-1">
-                <button onclick="revealModalAnswer()" id="modal-reveal-btn" class="btn-cartoon bg-yellow-300 text-detectiveBrown px-8 py-3 text-base flex items-center gap-2 hover:bg-yellow-400">
-                    <i class="fa-solid fa-lightbulb"></i> Reveal Answer
-                </button>
-                <button onclick="submitGotItModal()" id="modal-got-it-btn" class="hidden btn-cartoon bg-emerald-500 text-white px-8 py-3 text-base flex items-center gap-2 hover:bg-emerald-600">
-                    <i class="fa-solid fa-check"></i> Got It! (+Pts)
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 5. FINAL JEOPARDY MODAL -->
-    <div id="final-jeopardy-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-        <div class="hand-drawn-card bg-gradient-to-br from-purple-50 to-indigo-50 max-w-xl w-full p-6 sm:p-8 space-y-4 relative shadow-2xl">
-            <div class="flex justify-between items-center pb-3 border-b-3 border-detectiveBrown">
-                <span class="bg-purple-600 text-white text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full border-2 border-detectiveBrown">⭐ FINAL JEOPARDY</span>
-                <button onclick="closeFinalJeopardy()" class="w-8 h-8 rounded-full bg-red-100 border-2 border-detectiveBrown flex items-center justify-center font-bold text-sm hover:bg-red-200 cursor-pointer text-detectiveBrown">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="py-2 text-center space-y-2">
-                <div class="text-xs font-bold text-purple-800 uppercase tracking-widest">“NAME THE TERM!”</div>
-                <p class="text-base sm:text-xl font-bold text-detectiveBrown leading-relaxed">
-                    “A documentary shows real people, uses interviews, presents facts and statistics, shows actual footage, and has a clear purpose. What type of film is being described?”
-                </p>
-            </div>
-
-            <div id="final-answer-box" class="hidden p-3.5 rounded-xl bg-emerald-50 border-3 border-detectiveBrown space-y-1 text-center">
-                <span class="text-xs font-bold text-emerald-800 uppercase">✅ CORRECT ANSWER</span>
-                <p class="text-2xl sm:text-3xl font-bold text-emerald-700 uppercase">DOCUMENTARY</p>
-            </div>
-
-            <div class="flex justify-center gap-4 pt-1">
-                <button onclick="revealFinalAnswer()" id="final-reveal-btn" class="btn-cartoon bg-yellow-300 text-detectiveBrown px-8 py-3 text-base flex items-center gap-2 hover:bg-yellow-400">
-                    <i class="fa-solid fa-lightbulb"></i> Reveal Answer
-                </button>
-                <button onclick="submitFinalGotIt()" id="final-got-it-btn" class="hidden btn-cartoon bg-emerald-500 text-white px-8 py-3 text-base flex items-center gap-2 hover:bg-emerald-600">
-                    <i class="fa-solid fa-check"></i> Got It!
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 6. CONGRATULATIONS SCREEN -->
-    <div id="view-congrats" class="fixed inset-0 bg-gradient-to-br from-yellow-100 via-pink-100 to-emerald-100 z-50 flex items-center justify-center p-3 hidden">
-        <div class="hand-drawn-card bg-white max-w-2xl w-full p-6 sm:p-8 text-center space-y-5 relative shadow-2xl">
-            <div class="absolute -top-7 left-1/2 transform -translate-x-1/2 bg-yellow-300 text-detectiveBrown px-8 py-2 rounded-full border-3 border-detectiveBrown font-bold text-sm sm:text-base shadow-[4px_4px_0px_#2b2d42] animate-bouncy">
-                🏆 CHAMPION REVIEWER 🏆
-            </div>
-
-            <div class="pt-4 flex justify-center">
-                <div class="w-24 h-24 sm:w-28 sm:h-28 bg-yellow-100 rounded-3xl border-3 border-detectiveBrown flex items-center justify-center shadow-[4px_4px_0px_#2b2d42] animate-float">
-                    <svg viewBox="0 0 100 100" class="w-16 h-16 sm:w-20 sm:h-20">
-                        <path d="M30,20 L70,20 L65,55 Q50,65 35,55 Z" fill="#ffd166" stroke="#2b2d42" stroke-width="4"/>
-                        <path d="M20,25 Q10,25 15,40 Q20,50 32,45" fill="none" stroke="#2b2d42" stroke-width="4" stroke-linecap="round"/>
-                        <path d="M80,25 Q90,25 85,40 Q80,50 68,45" fill="none" stroke="#2b2d42" stroke-width="4" stroke-linecap="round"/>
-                        <rect x="42" y="62" width="16" height="15" fill="#2b2d42"/>
-                        <rect x="25" y="77" width="50" height="10" rx="4" fill="#ff70a6" stroke="#2b2d42" stroke-width="4"/>
-                        <circle cx="50" cy="38" r="8" fill="#fff" stroke="#2b2d42" stroke-width="3"/>
-                    </svg>
+            <!-- Answer Section (Hidden initially) -->
+            <div id="modal-answer-container" class="w-full mb-8 hidden">
+                <div class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Correct Answer:</div>
+                <div id="modal-answer-text" class="text-3xl font-extrabold text-[#38E54D] bg-black neo-box rounded-2xl py-4 px-6 inline-block">
+                    Answer Text
                 </div>
             </div>
 
-            <div class="space-y-1.5">
-                <h2 class="text-3xl sm:text-4xl font-bold text-detectiveBrown tracking-wide">🎉 AMAZING JOB! 🎉</h2>
-                <p class="text-lg sm:text-xl font-bold text-emerald-600">DOCUMENTARY MASTERS!</p>
-                <p class="font-comic text-gray-700 text-sm sm:text-base max-w-md mx-auto">
-                    You have successfully reviewed all documentary basics, main ideas, supporting details, target audiences, features, and purposes!
-                </p>
-            </div>
-
-            <div class="pt-1 flex justify-center gap-4">
-                <button onclick="resetGame()" class="btn-cartoon bg-cyan-500 text-white px-8 py-3 text-base sm:text-lg flex items-center gap-2 hover:bg-cyan-600 shadow-[4px_4px_0px_#2b2d42]">
-                    <i class="fa-solid fa-rotate-right"></i> Play Again
+            <!-- Action Buttons -->
+            <div id="modal-actions" class="flex gap-4 w-full justify-center">
+                <button id="reveal-btn" onclick="revealAnswer()" class="bg-[#FFE600] hover:bg-[#ffed4a] text-black font-extrabold text-lg px-8 py-3.5 rounded-2xl neo-btn flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-eye"></i> Reveal Answer
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer class="w-full max-w-7xl mx-auto bg-white border-3 border-detectiveBrown rounded-xl py-1 px-4 text-center text-xs font-comic text-amber-900 shadow-[2px_2px_0px_#2b2d42] shrink-0">
-        <p>🎬 Documentary Jeopardy Reviewer • Grade 10 English • Maximized Polished Edition</p>
-    </footer>
+    <!-- ================= 5. FINAL JEOPARDY MODAL ================= -->
+    <div id="final-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+        <div class="bg-white max-w-2xl w-full neo-box-lg rounded-3xl p-8 flex flex-col items-center text-center relative">
+            <button onclick="closeFinalJeopardy()" class="absolute top-4 right-4 w-10 h-10 bg-[#FF5757] text-white neo-box rounded-xl flex items-center justify-center font-bold text-lg hover:bg-[#e04343] cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
 
+            <div class="bg-[#FF5757] text-white px-6 py-1.5 neo-box rounded-full font-extrabold text-sm mb-6">
+                🌟 FINAL JEOPARDY CLUE
+            </div>
+
+            <div class="w-full bg-[#FFF9E6] neo-box rounded-2xl p-6 mb-6">
+                <p class="text-sm font-bold text-gray-600 mb-2">Category: Documentary Masterclass</p>
+                <h3 class="text-2xl md:text-3xl font-bold text-black leading-snug">
+                    A type of film that shows real people, uses interviews, presents facts and statistics, shows actual footage, and has a clear purpose.
+                </h3>
+            </div>
+
+            <div id="final-answer-container" class="w-full mb-8 hidden">
+                <div class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Correct Answer:</div>
+                <div class="text-3xl font-extrabold text-[#38E54D] bg-black neo-box rounded-2xl py-4 px-6 inline-block">
+                    Documentary
+                </div>
+            </div>
+
+            <button id="final-reveal-btn" onclick="revealFinalAnswer()" class="bg-[#FFE600] hover:bg-[#ffed4a] text-black font-extrabold text-lg px-8 py-3.5 rounded-2xl neo-btn flex items-center gap-2 cursor-pointer">
+                <i class="fa-solid fa-eye"></i> Reveal Final Answer
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= 6. INSTRUCTIONS MODAL ================= -->
+    <div id="instructions-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+        <div class="bg-white max-w-xl w-full neo-box-lg rounded-3xl p-8 flex flex-col relative">
+            <button onclick="closeInstructions()" class="absolute top-4 right-4 w-10 h-10 bg-[#FF5757] text-white neo-box rounded-xl flex items-center justify-center font-bold text-lg hover:bg-[#e04343] cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 bg-[#5783FF] neo-box rounded-xl flex items-center justify-center text-white text-2xl">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-extrabold">How to Play</h3>
+                    <p class="text-xs font-bold text-gray-600">Classroom Game Guidelines</p>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-gray-800 font-medium text-base mb-8">
+                <div class="flex items-start gap-3 bg-[#FFF9E6] p-4 neo-box rounded-2xl">
+                    <span class="bg-[#FFE600] w-7 h-7 neo-box rounded-lg flex items-center justify-center font-extrabold shrink-0 text-sm">1</span>
+                    <p><strong>No Teams or Scores:</strong> This is a collaborative, stress-free classroom review game. No point banks or score tracking!</p>
+                </div>
+                <div class="flex items-start gap-3 bg-[#FFF9E6] p-4 neo-box rounded-2xl">
+                    <span class="bg-[#FFE600] w-7 h-7 neo-box rounded-lg flex items-center justify-center font-extrabold shrink-0 text-sm">2</span>
+                    <p><strong>Selecting Clues:</strong> Click any point tile on the board to reveal the documentary prompt.</p>
+                </div>
+                <div class="flex items-start gap-3 bg-[#FFF9E6] p-4 neo-box rounded-2xl">
+                    <span class="bg-[#FFE600] w-7 h-7 neo-box rounded-lg flex items-center justify-center font-extrabold shrink-0 text-sm">3</span>
+                    <p><strong>Revealing Answers:</strong> Discuss as a class, then click <em>Reveal Answer</em>. The answered tile on the board will display the correct answer clearly and readably in place of the point value.</p>
+                </div>
+            </div>
+
+            <button onclick="closeInstructions()" class="w-full bg-[#5783FF] hover:bg-[#4570ff] text-white font-extrabold text-lg py-3.5 rounded-2xl neo-btn cursor-pointer">
+                Got It, Let's Play!
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= 7. GAME COMPLETE CELEBRATION MODAL ================= -->
+    <div id="celebration-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs hidden flex items-center justify-center p-4">
+        <div class="bg-white max-w-lg w-full neo-box-lg rounded-3xl p-8 flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+            <div class="w-24 h-24 bg-[#FFE600] neo-box rounded-3xl flex items-center justify-center text-black text-5xl mb-6 rotate-6 animate-bounce">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <span class="bg-[#38E54D] text-black px-4 py-1 neo-box rounded-full text-sm font-bold uppercase tracking-widest mb-2">
+                Board Completed!
+            </span>
+            <h2 class="text-3xl font-extrabold mb-3">Fantastic Classroom Review!</h2>
+            <p class="text-gray-700 font-medium mb-8">
+                You have successfully explored all documentary terms, features, main ideas, and target audiences. Great job!
+            </p>
+            <button onclick="resetGame()" class="w-full bg-[#FF5757] hover:bg-[#e04343] text-white font-extrabold text-lg py-4 rounded-2xl neo-btn flex items-center justify-center gap-3 cursor-pointer">
+                <i class="fa-solid fa-rotate-right"></i> Play Again
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
+        // Game Data structure based on prompt
         const jeopardyData = [
             {
-                category: "BASICS",
-                icon: "fa-video",
-                color: "bg-blue-100",
-                questions: [
-                    { points: 100, clue: "A film based on real-life experiences, people, events, and information.", answer: "Documentary" },
-                    { points: 200, clue: "This type of content presents real people, events, places, or situations.", answer: "Real-Life Content" },
-                    { points: 300, clue: "A documentary shows actual events instead of fictional events.", answer: "Real Footage" },
-                    { points: 400, clue: "Old photographs, newspapers, documents, and recordings used in a documentary.", answer: "Archival Materials" },
-                    { points: 500, clue: "A documentary presents different views or experiences about the same topic.", answer: "Different Perspectives" }
+                title: "PURPOSE",
+                color: "bg-[#5783FF]",
+                clues: [
+                    { value: 100, prompt: "Give information", answer: "Inform" },
+                    { value: 200, prompt: "Help viewers learn", answer: "Educate" },
+                    { value: 300, prompt: "Examine a topic", answer: "Explore" },
+                    { value: 400, prompt: "Make people aware", answer: "Raise Awareness" },
+                    { value: 500, prompt: "Make viewers think deeply", answer: "Encourage Reflection" }
                 ]
             },
             {
-                category: "MAIN IDEA",
-                icon: "fa-bullseye",
-                color: "bg-pink-100",
-                questions: [
-                    { points: 100, clue: "The central message or most important point of a documentary.", answer: "Main Idea" },
-                    { points: 200, clue: "The topic or subject that the documentary concentrates on.", answer: "Focus" },
-                    { points: 300, clue: "“The challenges faced by students who travel long distances to school.” Is this the Main Idea or Focus?", answer: "Focus" },
-                    { points: 400, clue: "“Some students overcome difficult travel conditions to continue their education.” Is this the Main Idea or Focus?", answer: "Main Idea" },
-                    { points: 500, clue: "The main idea is usually written as a complete ________, while the focus is usually a topic or subject.", answer: "Statement" }
+                title: "FEATURES",
+                color: "bg-[#FF5757]",
+                clues: [
+                    { value: 100, prompt: "Real people, events, and situations", answer: "Real-Life Content" },
+                    { value: 200, prompt: "Actual events on camera", answer: "Real Footage" },
+                    { value: 300, prompt: "Different views about one topic", answer: "Different Perspectives" },
+                    { value: 400, prompt: "Old photos, newspapers, and records", answer: "Archival Materials" },
+                    { value: 500, prompt: "Images, videos, sounds, music, and graphics", answer: "Visual and Audio Elements" }
                 ]
             },
             {
-                category: "DETAILS",
-                icon: "fa-magnifying-glass",
-                color: "bg-emerald-100",
-                questions: [
-                    { points: 100, clue: "Information that gives evidence or examples to support the main idea.", answer: "Supporting Details" },
-                    { points: 200, clue: "Statistics, interviews, and actual footage are examples of what?", answer: "Supporting Details" },
-                    { points: 300, clue: "A documentary shows students walking several kilometers to school. This is a ________.", answer: "Supporting Detail" },
-                    { points: 400, clue: "A documentary about pollution presents numbers and research about the problem. What feature is this?", answer: "Facts and Evidence" },
-                    { points: 500, clue: "A documentary shows a polluted river and interviews people who depend on it. These details help support the documentary's ________.", answer: "Main Idea" }
+                title: "MAIN IDEA, SUPPORTING DETAIL, OR FOCUS",
+                color: "bg-[#FFE600]",
+                clues: [
+                    { value: 100, prompt: "Central message", answer: "Main Idea" },
+                    { value: 200, prompt: "Documentary topic", answer: "Focus" },
+                    { value: 300, prompt: "Facts and examples", answer: "Supporting Details" },
+                    { value: 400, prompt: "Most important point", answer: "Main Idea" },
+                    { value: 500, prompt: "Evidence and information", answer: "Supporting Details" }
                 ]
             },
             {
-                category: "AUDIENCE",
-                icon: "fa-users",
-                color: "bg-purple-100",
-                questions: [
-                    { points: 100, clue: "The people for whom a documentary is intended.", answer: "Target Audience" },
-                    { points: 200, clue: "A documentary about school life may be intended for students, parents, and ________.", answer: "Teachers" },
-                    { points: 300, clue: "A documentary about teenage social media use may target teenagers, parents, and ________.", answer: "Educators" },
-                    { points: 400, clue: "Simple language is more likely to be used for the general public or ________ viewers.", answer: "Younger" },
-                    { points: 500, clue: "Name ONE factor that can help identify the target audience.", answer: "Language Used / Topic / Level of Explanation / Visual Presentation / Examples Used / Purpose" }
-                ]
-            },
-            {
-                category: "FEATURES",
-                icon: "fa-film",
-                color: "bg-amber-100",
-                questions: [
-                    { points: 100, clue: "People share their experiences, opinions, or knowledge in a documentary.", answer: "Interviews" },
-                    { points: 200, clue: "Facts, statistics, and research presented in a documentary.", answer: "Facts and Evidence" },
-                    { points: 300, clue: "A voice explains or connects information in the documentary.", answer: "Narration / Voice-over" },
-                    { points: 400, clue: "A documentary uses images, videos, sounds, music, and graphics.", answer: "Visual and Audio Elements" },
-                    { points: 500, clue: "A documentary presents different views from residents, workers, experts, and officials.", answer: "Different Perspectives" }
-                ]
-            },
-            {
-                category: "PURPOSE",
-                icon: "fa-heart",
-                color: "bg-orange-100",
-                questions: [
-                    { points: 100, clue: "What the documentary wants viewers to know, understand, or do.", answer: "Purpose" },
-                    { points: 200, clue: "A documentary about endangered animals wants people to care about protecting wildlife. Its purpose is to raise ________.", answer: "Awareness" },
-                    { points: 300, clue: "A documentary about plastic pollution wants viewers to understand the problem. Its purpose is to ________ viewers.", answer: "Inform" },
-                    { points: 400, clue: "A documentary about river pollution wants viewers to understand the problem and help protect the environment. What is its purpose?", answer: "To inform and raise awareness" },
-                    { points: 500, clue: "A documentary about farmers shows their real experiences, struggles, and contribution to the community. What does this help viewers understand?", answer: "The real experiences and challenges of farmers" }
+                title: "TARGET AUDIENCE",
+                color: "bg-[#38E54D]",
+                clues: [
+                    { value: 100, prompt: "People currently in school", answer: "Students" },
+                    { value: 200, prompt: "People from all parts of society", answer: "General Public" },
+                    { value: 300, prompt: "Formal or casual words", answer: "Language Used" },
+                    { value: 400, prompt: "Simple or detailed explanation", answer: "Level of Explanation" },
+                    { value: 500, prompt: "Stories, situations, or illustrations", answer: "Examples Used" }
                 ]
             }
         ];
 
-        let soundEnabled = true;
-        let activeCategoryIndex = null;
-        let activeQuestionIndex = null;
+        // State tracking
+        let playedClues = {}; // key: "catIdx-clueIdx" -> true
+        let currentCatIdx = null;
+        let currentClueIdx = null;
+        let audioEnabled = true;
         let audioCtx = null;
-        let bgmInterval = null;
 
+        // Initialize Web Audio API synth
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
         }
 
-        function startBGM() {
-            if (!soundEnabled) return;
+        function playSound(type) {
+            if (!audioEnabled) return;
             initAudio();
-            stopBGM();
+            if (!audioCtx) return;
 
-            const notes = [220, 246.94, 277.18, 293.66, 329.63];
-            let noteIndex = 0;
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
 
-            bgmInterval = setInterval(() => {
-                if (!soundEnabled || !audioCtx) return;
-                try {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(notes[noteIndex], audioCtx.currentTime);
-                    
-                    gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.4);
-
-                    noteIndex = (noteIndex + 1) % notes.length;
-                } catch(e) {}
-            }, 600);
-        }
-
-        function stopBGM() {
-            if (bgmInterval) {
-                clearInterval(bgmInterval);
-                bgmInterval = null;
-            }
-        }
-
-        function playChimeSound() {
-            if (!soundEnabled) return;
-            try {
-                initAudio();
-                const now = audioCtx.currentTime;
-                const freqs = [523.25, 659.25, 783.99, 1046.50];
-                freqs.forEach((f, i) => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(f, now + (i * 0.08));
-                    
-                    gain.gain.setValueAtTime(0.1, now + (i * 0.08));
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.08) + 0.3);
-
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-
-                    osc.start(now + (i * 0.08));
-                    osc.stop(now + (i * 0.08) + 0.3);
-                });
-            } catch(e) {}
-        }
-
-        function playClickSound() {
-            if (!soundEnabled) return;
-            try {
-                initAudio();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'reveal') {
                 osc.type = 'triangle';
-                osc.frequency.setValueAtTime(350, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.08);
-            } catch(e) {}
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.setValueAtTime(523.25, now + 0.1); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.2); // E5
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } else if (type === 'win') {
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    const noteOsc = audioCtx.createOscillator();
+                    const noteGain = audioCtx.createGain();
+                    noteOsc.connect(noteGain);
+                    noteGain.connect(audioCtx.destination);
+                    noteOsc.type = 'square';
+                    noteOsc.frequency.setValueAtTime(freq, now + idx * 0.12);
+                    noteGain.gain.setValueAtTime(0.15, now + idx * 0.12);
+                    noteGain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.12 + 0.2);
+                    noteOsc.start(now + idx * 0.12);
+                    noteOsc.stop(now + idx * 0.12 + 0.2);
+                });
+            }
         }
 
         function toggleAudio() {
-            soundEnabled = !soundEnabled;
-            const btn = document.getElementById('audio-toggle-btn');
-            if (soundEnabled) {
-                btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> Sound & BGM';
-                startBGM();
-                playClickSound();
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('audio-icon');
+            if (audioEnabled) {
+                icon.className = "fa-solid fa-volume-high";
+                playSound('click');
             } else {
-                btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> Mute';
-                stopBGM();
+                icon.className = "fa-solid fa-volume-xmark";
             }
         }
 
-        window.onload = function() {
-            renderJeopardyBoard();
-        };
+        // Simulate loading screen
+        window.addEventListener('DOMContentLoaded', () => {
+            let progress = 0;
+            const bar = document.getElementById('loading-bar');
+            const pct = document.getElementById('loading-pct');
+            const text = document.getElementById('loading-text');
+            const startBtn = document.getElementById('start-btn');
 
-        function goToInstructions() {
-            playClickSound();
-            document.getElementById('view-cover').classList.add('hidden');
-            document.getElementById('view-instructions').classList.remove('hidden');
-            startBGM();
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 18) + 12;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    bar.style.width = '100%';
+                    pct.textContent = '100%';
+                    text.textContent = 'Ready to Play!';
+                    startBtn.classList.remove('hidden');
+                    playSound('reveal');
+                } else {
+                    bar.style.width = progress + '%';
+                    pct.textContent = progress + '%';
+                }
+            }, 120);
+
+            buildBoard();
+        });
+
+        function startGame() {
+            playSound('click');
+            const lobby = document.getElementById('screen-lobby');
+            lobby.style.opacity = '0';
+            setTimeout(() => {
+                lobby.style.display = 'none';
+            }, 300);
         }
 
-        function startGameBoard() {
-            playClickSound();
-            document.getElementById('view-instructions').classList.add('hidden');
-        }
+        // Build main board grid
+        function buildBoard() {
+            const grid = document.getElementById('board-grid');
+            grid.innerHTML = '';
 
-        function showCover() {
-            playClickSound();
-            document.getElementById('view-cover').classList.remove('hidden');
-            document.getElementById('view-instructions').classList.add('hidden');
-            document.getElementById('view-congrats').classList.add('hidden');
-            stopBGM();
-        }
+            jeopardyData.forEach((cat, catIdx) => {
+                const colDiv = document.createElement('div');
+                colDiv.className = "flex flex-col h-full gap-3";
 
-        function renderJeopardyBoard() {
-            const headersContainer = document.getElementById('jeopardy-grid-headers');
-            const tilesContainer = document.getElementById('jeopardy-grid-tiles');
-            headersContainer.innerHTML = '';
-            tilesContainer.innerHTML = '';
+                // Category Header Tile
+                const headerTile = document.createElement('div');
+                headerTile.className = `${cat.color} text-black font-extrabold text-xs md:text-sm py-2 px-1 neo-box rounded-2xl flex items-center justify-center text-center shrink-0 h-16`;
+                headerTile.textContent = cat.title;
+                colDiv.appendChild(headerTile);
 
-            jeopardyData.forEach(cat => {
-                const hDiv = document.createElement('div');
-                hDiv.className = `${cat.color} border-3 border-detectiveBrown rounded-xl p-2 text-center shadow-[3px_3px_0px_#2b2d42] flex flex-col items-center justify-center h-16 sm:h-20`;
-                hDiv.innerHTML = `
-                    <i class="fa-solid ${cat.icon} text-sm sm:text-base mb-1 text-detectiveBrown"></i>
-                    <span class="font-bold text-[10px] sm:text-xs uppercase tracking-tight text-detectiveBrown leading-tight">${cat.category}</span>
-                `;
-                headersContainer.appendChild(hDiv);
-            });
+                // Clue Tiles Container
+                const cluesContainer = document.createElement('div');
+                cluesContainer.className = "flex flex-col flex-1 gap-3";
 
-            for (let rowIndex = 0; rowIndex < 5; rowIndex++) {
-                jeopardyData.forEach((cat, catIndex) => {
-                    const q = cat.questions[rowIndex];
-                    const btn = document.createElement('button');
-                    btn.className = `jeopardy-tile py-2 sm:py-3 text-base sm:text-xl flex items-center justify-center h-12 sm:h-14 ${q.played ? 'played' : ''}`;
-                    btn.innerText = `$${q.points}`;
-                    btn.disabled = !!q.played;
-                    btn.onclick = () => openClueModal(catIndex, rowIndex);
-                    tilesContainer.appendChild(btn);
+                cat.clues.forEach((clue, clueIdx) => {
+                    const key = `${catIdx}-${clueIdx}`;
+                    const isPlayed = playedClues[key];
+
+                    const tile = document.createElement('button');
+                    tile.id = `tile-${key}`;
+                    
+                    if (isPlayed) {
+                        // Reflected answered tile: displays the actual answer clearly and readably
+                        tile.className = "flex-1 bg-white neo-box rounded-2xl flex items-center justify-center p-2 text-center font-extrabold text-xs md:text-sm text-black cursor-default";
+                        tile.textContent = clue.answer;
+                        tile.disabled = true;
+                    } else {
+                        // Active clickable point tile
+                        tile.className = "flex-1 bg-white hover:bg-[#FFE600] text-black font-extrabold text-xl md:text-2xl neo-box rounded-2xl flex items-center justify-center cursor-pointer";
+                        tile.textContent = `$${clue.value}`;
+                        tile.onclick = () => openClue(catIdx, clueIdx);
+                    }
+
+                    cluesContainer.appendChild(tile);
                 });
-            }
+
+                colDiv.appendChild(cluesContainer);
+                grid.appendChild(colDiv);
+            });
         }
 
-        function openClueModal(catIndex, qIndex) {
-            playClickSound();
-            activeCategoryIndex = catIndex;
-            activeQuestionIndex = qIndex;
-            const q = jeopardyData[catIndex].questions[qIndex];
-            const cat = jeopardyData[catIndex];
+        // Clue Modal Functions
+        function openClue(catIdx, clueIdx) {
+            playSound('click');
+            currentCatIdx = catIdx;
+            currentClueIdx = clueIdx;
+            const cat = jeopardyData[catIdx];
+            const clue = cat.clues[clueIdx];
 
-            document.getElementById('modal-category-title').innerText = cat.category;
-            document.getElementById('modal-points-title').innerText = `$${q.points} pts`;
-            document.getElementById('modal-clue-text').innerText = q.clue;
-            document.getElementById('modal-answer-text').innerText = q.answer;
-
-            document.getElementById('modal-answer-section').classList.add('hidden');
-            document.getElementById('modal-reveal-btn').classList.remove('hidden');
-            document.getElementById('modal-got-it-btn').classList.add('hidden');
+            document.getElementById('modal-badge').textContent = `${cat.title} • $${clue.value}`;
+            document.getElementById('modal-clue-text').textContent = clue.prompt;
+            document.getElementById('modal-answer-text').textContent = clue.answer;
+            
+            // Reset answer container and reveal button state
+            document.getElementById('modal-answer-container').classList.add('hidden');
+            const revealBtn = document.getElementById('reveal-btn');
+            revealBtn.classList.remove('hidden');
 
             document.getElementById('clue-modal').classList.remove('hidden');
         }
 
-        function revealModalAnswer() {
-            playChimeSound();
-            document.getElementById('modal-answer-section').classList.remove('hidden');
-            document.getElementById('modal-reveal-btn').classList.add('hidden');
-            document.getElementById('modal-got-it-btn').classList.remove('hidden');
-        }
+        function revealAnswer() {
+            playSound('reveal');
+            document.getElementById('modal-answer-container').classList.remove('hidden');
+            document.getElementById('reveal-btn').classList.add('hidden');
 
-        function submitGotItModal() {
-            playClickSound();
-            if (activeCategoryIndex !== null && activeQuestionIndex !== null) {
-                jeopardyData[activeCategoryIndex].questions[activeQuestionIndex].played = true;
-                renderJeopardyBoard();
+            // Mark tile as played
+            const key = `${currentCatIdx}-${currentClueIdx}`;
+            playedClues[key] = true;
+
+            // Immediately reflect answer on main board tile
+            const cat = jeopardyData[currentCatIdx];
+            const clue = cat.clues[currentClueIdx];
+            const tile = document.getElementById(`tile-${key}`);
+            if (tile) {
+                tile.className = "flex-1 bg-white neo-box rounded-2xl flex items-center justify-center p-2 text-center font-extrabold text-xs md:text-sm text-black cursor-default";
+                tile.textContent = clue.answer;
+                tile.disabled = true;
             }
-            document.getElementById('clue-modal').classList.add('hidden');
+
+            // Check if all clues are completed
+            checkAllCompleted();
         }
 
-        function closeModalDirect() {
-            playClickSound();
+        function closeClueModal() {
+            playSound('click');
             document.getElementById('clue-modal').classList.add('hidden');
+            currentCatIdx = null;
+            currentClueIdx = null;
         }
 
+        // Final Jeopardy Functions
         function openFinalJeopardy() {
-            playClickSound();
-            document.getElementById('final-answer-box').classList.add('hidden');
+            playSound('click');
+            document.getElementById('final-answer-container').classList.add('hidden');
             document.getElementById('final-reveal-btn').classList.remove('hidden');
-            document.getElementById('final-got-it-btn').classList.add('hidden');
-            document.getElementById('final-jeopardy-modal').classList.remove('hidden');
+            document.getElementById('final-modal').classList.remove('hidden');
         }
 
         function revealFinalAnswer() {
-            playChimeSound();
-            document.getElementById('final-answer-box').classList.remove('hidden');
+            playSound('reveal');
+            document.getElementById('final-answer-container').classList.remove('hidden');
             document.getElementById('final-reveal-btn').classList.add('hidden');
-            document.getElementById('final-got-it-btn').classList.remove('hidden');
-        }
 
-        function submitFinalGotIt() {
-            playChimeSound();
-            document.getElementById('final-jeopardy-modal').classList.add('hidden');
-            document.getElementById('view-congrats').classList.remove('hidden');
+            // Automatically close final modal and show celebration screen after a short pause
+            setTimeout(() => {
+                closeFinalJeopardy();
+                playSound('win');
+                document.getElementById('celebration-modal').classList.remove('hidden');
+            }, 1200);
         }
 
         function closeFinalJeopardy() {
-            playClickSound();
-            document.getElementById('final-jeopardy-modal').classList.add('hidden');
+            playSound('click');
+            document.getElementById('final-modal').classList.add('hidden');
+        }
+
+        // Instructions Modal Functions
+        function openInstructions() {
+            playSound('click');
+            document.getElementById('instructions-modal').classList.remove('hidden');
+        }
+
+        function closeInstructions() {
+            playSound('click');
+            document.getElementById('instructions-modal').classList.add('hidden');
+        }
+
+        // Completion check
+        function checkAllCompleted() {
+            let totalClues = 0;
+            let playedCount = 0;
+
+            jeopardyData.forEach((cat, catIdx) => {
+                cat.clues.forEach((clue, clueIdx) => {
+                    totalClues++;
+                    if (playedClues[`${catIdx}-${clueIdx}`]) {
+                        playedCount++;
+                    }
+                });
+            });
+
+            if (playedCount === totalClues) {
+                setTimeout(() => {
+                    playSound('win');
+                    document.getElementById('celebration-modal').classList.remove('hidden');
+                }, 400);
+            }
         }
 
         function resetGame() {
-            playClickSound();
-            jeopardyData.forEach(cat => {
-                cat.questions.forEach(q => {
-                    q.played = false;
-                });
-            });
-            renderJeopardyBoard();
-            document.getElementById('view-congrats').classList.add('hidden');
-            document.getElementById('view-cover').classList.remove('hidden');
-            stopBGM();
+            playSound('click');
+            playedClues = {};
+            document.getElementById('celebration-modal').classList.add('hidden');
+            buildBoard();
         }
     </script>
 </body>
